@@ -1,0 +1,26 @@
+# Lingkungan Python (Sisa dari Data Processing)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# Sistem Operasi
+.DS_Store
+Thumbs.db
+
+# Konfigurasi IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Folder khusus AI/Agen (opsional, karena Antigravity membuat folder temporary)
+.system_generated/
+scratch/
