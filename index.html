@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Inflasi BBM Indonesia</title>
+    
+    <!-- Google Fonts: Playfair Display (Serif) & Inter (Sans-serif) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS v3 via Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#FDFBF7',
+                        card: '#FFFFFF',
+                        'sage-green': '#4A8B6A',
+                        'sage-dark': '#2C5545',
+                        'sage-light': '#E8F0EB',
+                        dark: '#222222',
+                        gray: '#666666',
+                        border: '#E2E0D8'
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS untuk elemen spesifik yang sulit dicapai Tailwind utility murni (Range Slider Thumb) -->
+    <style>
+        /* Custom Slider Style */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #2C5545; /* sage-dark */
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border: 4px solid white;
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #D5D3CB;
+            border-radius: 4px;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-cream text-dark font-sans leading-relaxed pb-12">
+
+    <!-- Header -->
+    <header class="py-16 border-b border-border mb-10">
+        <div class="max-w-[1100px] mx-auto px-5 flex flex-col md:flex-row justify-between items-start md:items-end gap-5">
+            <div>
+                <h1 class="font-serif text-[2.5rem] md:text-5xl font-black text-sage-dark tracking-tight mb-2 leading-tight">
+                    Kalkulator Inflasi BBM Indonesia
+                </h1>
+                <p class="text-lg text-gray font-normal">
+                    Memahami penurunan nilai mata uang lewat harga bahan bakar historis (1980 - 2026).
+                </p>
+            </div>
+            <!-- Dropdown Jenis BBM -->
+            <div class="w-full md:w-auto">
+                <select id="fuel-type" class="w-full md:w-48 bg-white border-2 border-sage-dark text-sage-dark text-sm rounded-lg focus:ring-sage-green focus:border-sage-green block p-2.5 font-bold cursor-pointer">
+                    <option value="Premium/Pertalite">Premium/Pertalite</option>
+                    <option value="Solar">Solar</option>
+                    <option value="Pertamax">Pertamax</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1100px] mx-auto px-5">
+        
+        <!-- Grid Layout Kolom Kiri & Kanan -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            
+            <!-- Kiri: Visualisasi Liter -->
+            <div class="bg-card border border-border rounded-2xl p-8 shadow-sm">
+                <h3 class="font-serif text-2xl text-dark mb-1 border-b-[2px] border-sage-green inline-block pb-1">
+                    1. Penurunan Nilai Uang
+                </h3>
+                <p class="text-[0.95rem] text-gray mb-6 mt-2">
+                    Dengan uang pas <strong>Rp 100.000</strong>, berapa liter bensin yang Anda dapatkan di tahun tersebut?
+                </p>
+                
+                <div class="flex flex-col md:flex-row items-center md:items-end justify-center gap-10 h-auto md:h-72 p-5 bg-cream rounded-xl border border-border">
+                    
+                    <!-- Animasi Tangki -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-[60px] h-[10px] bg-dark rounded-t-md"></div>
+                        <div class="w-[140px] h-[200px] border-[6px] border-dark rounded-[12px_12px_4px_4px] relative bg-white overflow-hidden flex justify-center items-center">
+                            <!-- Cairan Tangki Dinamis -->
+                            <div id="tank-liquid" class="absolute bottom-0 left-0 w-full bg-sage-green transition-all duration-[600ms] ease-out" style="height: 50%;"></div>
+                            <div class="absolute text-6xl z-10 opacity-80">⛽</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hasil Liter -->
+                    <div class="flex flex-col mb-5 text-center md:text-left mt-5 md:mt-0">
+                        <h2 id="liter-result" class="text-[2.8rem] font-black text-sage-dark leading-tight tracking-[-1px]">
+                            0.0 Liter
+                        </h2>
+                        <p id="motorcycle-result" class="text-[0.95rem] text-gray font-semibold mt-1">
+                            Setara dengan 0x isi full tangki motor
+                        </p>
+                        <p class="text-[0.75rem] text-gray italic mt-1">(Asumsi: 1 Tangki Motor Honda BeAT = 4.2 Liter)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kanan: Kontrol dan Konteks -->
+            <div class="bg-card border border-border rounded-2xl p-8 shadow-sm">
+                <h3 class="font-serif text-2xl text-dark mb-1 border-b-[2px] border-sage-green inline-block pb-1">
+                    2. Kenaikan Harga Nominal
+                </h3>
+                <p class="text-[0.95rem] text-gray mb-6 mt-2">
+                    Harga riil vs Nominal akibat inflasi berkepanjangan.
+                </p>
+                
+                <!-- Slider Input -->
+                <div class="mb-8 bg-cream p-5 rounded-xl border border-border">
+                    <label for="year-slider" class="flex justify-between items-center font-semibold mb-4 text-gray text-base">
+                        <span>Pilih Tahun Historis</span>
+                        <span id="year-display" class="text-sage-green font-serif text-[1.8rem] font-black leading-none">2026</span>
+                    </label>
+                    <input type="range" id="year-slider" min="1980" max="2026" value="2026" step="1">
+                </div>
+
+                <!-- Price Metrics -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-cream p-5 rounded-xl border border-border">
+                        <span class="text-xs text-gray uppercase tracking-wide font-semibold">Harga per Liter (Nominal)</span>
+                        <h2 id="price-nominal" class="font-serif text-3xl text-dark mt-1 font-black">Rp 10.000</h2>
+                    </div>
+                    <div class="bg-sage-light p-5 rounded-xl border border-sage-green">
+                        <span class="text-xs text-gray uppercase tracking-wide font-semibold">Setara Daya Beli Masa Kini</span>
+                        <h2 id="price-real" class="font-serif text-3xl text-sage-dark mt-1 font-black">Rp 10.000</h2>
+                    </div>
+                </div>
+
+                <!-- Historical Context -->
+                <div class="bg-cream border-l-[5px] border-sage-green p-5 rounded-r-xl">
+                    <h4 class="text-[0.95rem] text-sage-dark mb-2 uppercase tracking-wide font-extrabold">
+                        📜 Konteks Sejarah Singkat
+                    </h4>
+                    <p id="history-context" class="text-[0.95rem] text-gray leading-relaxed">
+                        Estimasi harga stabil di tengah dinamika perekonomian lokal dan global saat ini.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Bawah: Chart Container -->
+        <section class="bg-card border border-border rounded-2xl p-8 shadow-sm">
+            <h3 class="font-serif text-2xl text-dark mb-1 border-b-[2px] border-sage-green inline-block pb-1">
+                Tren Harga Historis (1980 - 2026)
+            </h3>
+            <p class="text-[0.95rem] text-gray mb-6 mt-2">
+                Pergerakan data time-series harga bahan bakar di Indonesia.
+            </p>
+            <!-- Inflation Note -->
+            <div class="mb-8 bg-sage-light p-6 rounded-xl border border-sage-green text-[0.9rem] text-gray leading-relaxed">
+                <h4 class="font-bold text-sage-dark mb-2 uppercase tracking-wide text-sm">💡 Metodologi: Daya Beli Setara Masa Kini (Time Value of Money)</h4>
+                <p>
+                    Nilai uang terus menyusut akibat inflasi. Untuk menghitung seberapa besar daya beli harga BBM di masa lalu jika disetarakan dengan nilai uang kita hari ini, kalkulator ini menggunakan formula:
+                </p>
+                <div class="my-3 font-mono text-dark bg-white p-3 rounded border border-border text-sm overflow-x-auto">
+                    Harga Setara Masa Kini = Harga Nominal × (CPI 2026 ÷ CPI Tahun Tersebut)
+                </div>
+                <p>
+                    <b>Data Inflasi:</b> Menggunakan rasio Indeks Harga Konsumen (IHK) / <i>Consumer Price Index (CPI)</i> Indonesia yang bersumber dari data resmi Bank Dunia (Indikator: <code>FP.CPI.TOTL</code>).
+                </p>
+                <p class="mt-2">
+                    <b>Data Harga BBM:</b> Dikompilasi dari catatan sejarah publik, regulasi pemerintah, dan arsip berita. (Referensi: <a href="https://id.wikipedia.org/wiki/Bahan_bakar_minyak_di_Indonesia" target="_blank" class="text-sage-dark font-semibold underline hover:text-sage-green">Wikipedia - Bahan Bakar Minyak di Indonesia</a>).
+                </p>
+            </div>
+
+            <div id="chart-container" class="h-[350px] bg-cream rounded-xl border-[2px] border-dashed border-border p-4 relative w-full">
+                <canvas id="bbmChart"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-[1100px] mx-auto px-5 text-center pt-10 text-[0.9rem] text-gray">
+        <p>Desain Portofolio Web App - Data Historis Harga BBM Indonesia</p>
+    </footer>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Script Logic -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
